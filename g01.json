@@ -1,0 +1,46 @@
+{
+ "booklet": [
+  {
+   "title": "（小冊子標題）",
+   "text": "（小冊子文字）",
+   "img": "（Imgur 圖片直接連結，可留空）",
+   "link": ""
+  }
+ ],
+ "guide": [
+  {
+   "title": "（公式書名稱）",
+   "pdf": "pdf/g01.pdf",
+   "note": "（公式書心得）"
+  }
+ ],
+ "review": [
+  {
+   "title": "（心得標題）",
+   "date": "（日期）",
+   "text": "（心得內文，換行用 \\n）"
+  }
+ ],
+ "cg": [
+  {
+   "src": "https://i.imgur.com/（圖片ID）.jpg",
+   "caption": "（CG 說明）"
+  }
+ ],
+ "op": {
+  "youtube": "（YouTube 影片 ID）",
+  "lyrics": [
+   {
+    "jp": "（日文歌詞一行）",
+    "zh": "（中文歌詞一行）"
+   }
+  ]
+ },
+ "other": [
+  {
+   "title": "（例如：訪談自翻）",
+   "text": "（文字）",
+   "link": ""
+  }
+ ]
+}
