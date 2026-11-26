@@ -1,0 +1,103 @@
+﻿<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>乙女遊戲心得本</title>
+<link href="https://fonts.googleapis.com/css2?family=Iansui&family=Zen+Maru+Gothic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* 日文字體：Morisawa「プフ ホリデー」請把你有授權的字體檔放到 fonts/PuffHoliday.woff2，沒放會自動用 Zen Maru Gothic */
+@font-face{font-family:PuffHoliday;src:url(fonts/PuffHoliday.woff2) format("woff2");font-display:swap}
+:root{--pink:#e8789a;--deep:#b0446a;--soft:#ffe6ee;--ink:#5a2b3c;--glass:rgba(255,255,255,.72)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;padding:24px 14px;color:var(--ink);font:16px/1.8 Iansui,"Noto Sans TC",sans-serif;background:linear-gradient(160deg,#f9cfdc,#f3b4cb) center/cover fixed no-repeat}
+:lang(ja){font-family:PuffHoliday,"Zen Maru Gothic",sans-serif}
+#app{max-width:760px;margin:0 auto;background:var(--glass);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-radius:28px;padding:22px;box-shadow:0 8px 30px rgba(176,68,106,.22)}
+h1{margin:.2em 0;color:var(--deep);font-size:1.7rem;font-weight:400}
+h2{margin:.2em 0;color:var(--deep);font-weight:400}
+h3{margin:.2em 0;color:var(--deep);font-weight:400;font-size:1.1rem}
+.sub{margin:0 0 14px;opacity:.8}
+input[type=search]{width:100%;padding:9px 18px;border:2px solid var(--soft);border-radius:999px;background:rgba(255,255,255,.8);font:inherit;color:var(--ink)}
+.game{position:relative;display:flex;flex-direction:column;justify-content:center;width:100%;min-height:66px;margin:10px 0;padding:8px 20px 8px 88px;border:0;border-radius:999px;background:rgba(255,230,238,.85);color:var(--ink);text-align:left;font:inherit;cursor:pointer;overflow:hidden}
+.game:hover,.game:focus-visible{background:#ffd3e1;outline:2px solid var(--pink)}
+.game .th{position:absolute;left:0;top:0;bottom:0;width:76px;background:center/cover;opacity:.45;-webkit-mask-image:linear-gradient(90deg,#000 55%,transparent);mask-image:linear-gradient(90deg,#000 55%,transparent)}
+.game b{font-weight:400;line-height:1.35}
+.game small{opacity:.75;line-height:1.3}
+.back,.tab{border:0;border-radius:999px;padding:6px 16px;background:var(--soft);font:inherit;color:var(--ink);cursor:pointer}
+.back{margin-bottom:10px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.tab[aria-selected=true]{background:var(--pink);color:#fff}
+.card{background:rgba(255,255,255,.7);border-radius:18px;padding:12px 16px;margin:12px 0}
+.card img{max-width:100%;border-radius:12px}
+.card a,.ph a{color:var(--deep)}
+.pdf{width:100%;height:70vh;border:0;border-radius:12px;background:#fff}
+.yt{width:100%;aspect-ratio:16/9;border:0;border-radius:16px}
+.cgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.cgs figure{margin:0}
+.cgs img{width:100%;border-radius:14px;display:block}
+.cgs figcaption{font-size:.85rem;opacity:.8}
+.lyric{margin-top:14px}
+.lyric p{margin:0 0 .9em}
+.lyric .zh{display:block;opacity:.85}
+.ph{margin:12px 0;padding:10px 14px;border:2px dashed var(--pink);border-radius:14px;font-size:.9rem;opacity:.75}
+.hint{font-size:.85rem;opacity:.7}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--deep);outline-offset:2px}
+</style></head>
+<body><main id="app"></main>
+<script>
+// ===== 設定區（改這裡）=====
+const CFG={
+  bg:"",                                   // ✎ 背景大圖：貼 Imgur「直接圖片連結」https://i.imgur.com/xxxxxxx.jpg
+  title:"乙女遊戲心得本",                    // ✎ 網站標題
+  sub:"（在這裡放一句副標）"                 // ✎ 副標
+};
+// ==========================
+const app=document.getElementById("app");
+if(CFG.bg)document.body.style.backgroundImage=`url("${CFG.bg}")`;
+const h=(t,a={},...k)=>{const e=document.createElement(t);for(const[n,v]of Object.entries(a))n==="class"?e.className=v:n.startsWith("on")?e[n]=v:e.setAttribute(n,v);e.append(...k.flat().filter(c=>c!=null&&c!==false));return e};
+const TABS=[["booklet","小冊子"],["guide","公式書"],["review","心得"],["cg","CG圖"],["op","OP"],["other","其他"]];
+const ph=t=>h("div",{class:"ph"},"✎ "+t);
+const paras=t=>String(t||"").split("\n").map(p=>h("p",{},p));
+const lnk=(u,t)=>u?h("a",{href:u,target:"_blank",rel:"noopener"},t||u):null;
+const list=(a,msg,f)=>a&&a.length?a.map(f):[ph(msg)];
+const R={
+ booklet:d=>list(d.booklet,"在這個遊戲的 json 的 booklet 放小冊子：title 標題、text 文字、img 圖片網址、link 連結",
+  i=>h("div",{class:"card"},h("h3",{},i.title),i.img?h("img",{src:i.img,loading:"lazy"}):null,paras(i.text),lnk(i.link))),
+ guide:d=>list(d.guide,"在 json 的 guide 放公式書：title 標題、pdf 檔案路徑（例如 pdf/g01.pdf）、note 文字分享",
+  i=>h("div",{class:"card"},h("h3",{},i.title),paras(i.note),i.pdf?h("iframe",{class:"pdf",src:i.pdf,title:i.title||"PDF"}):null,i.pdf?h("p",{class:"hint"},lnk(i.pdf,"在新分頁開啟 PDF（手機建議用這個）")):null)),
+ review:d=>list(d.review,"在 json 的 review 放心得：title 標題、date 日期、text 內文（換行用 \\n）",
+  i=>h("div",{class:"card"},h("h3",{},i.title),i.date?h("small",{},i.date):null,paras(i.text))),
+ cg:d=>{
+  const grid=h("div",{class:"cgs"});
+  (d.cg||[]).forEach(i=>grid.append(h("figure",{},h("img",{src:i.src,alt:i.caption||"CG",loading:"lazy"}),i.caption?h("figcaption",{},i.caption):null)));
+  const up=h("input",{type:"file",accept:"image/*",multiple:"",onchange:e=>[...e.target.files].forEach(f=>grid.append(h("figure",{},h("img",{src:URL.createObjectURL(f),alt:f.name}))))});
+  return [(d.cg||[]).length?null:ph("在 json 的 cg 放圖片：src 圖片網址（Imgur 直接連結）、caption 說明"),
+   h("p",{class:"hint"},"長按圖片即可儲存（電腦版按右鍵）。下面的上傳只會暫時顯示在這台裝置，重新整理就不見；要永久保存請把網址寫進 json。"),up,grid]},
+ op:d=>{const o=d.op||{};
+  return [o.youtube?h("iframe",{class:"yt",src:"https://www.youtube-nocookie.com/embed/"+o.youtube,title:"OP",allowfullscreen:""}):ph("在 json 的 op.youtube 放 YouTube 影片 ID（網址 v= 後面那串）"),
+   h("div",{class:"lyric"},list(o.lyrics,"在 op.lyrics 放歌詞：jp 日文一行、zh 中文一行",l=>h("p",{},h("span",{lang:"ja"},l.jp),h("span",{class:"zh"},l.zh))))]},
+ other:d=>list(d.other,"在 json 的 other 放其他：title 標題（例如訪談自翻）、text 文字、link 連結",
+  i=>h("div",{class:"card"},h("h3",{},i.title),paras(i.text),lnk(i.link)))
+};
+let G=[];
+function home(){
+  history.replaceState(null,"",location.pathname);
+  const q=h("input",{type:"search",placeholder:"搜尋作品…",oninput:()=>draw()});
+  const box=h("div");
+  const draw=()=>{const s=q.value.trim().toLowerCase();
+    box.replaceChildren(...G.filter(g=>(g.jp+g.zh).toLowerCase().includes(s)).map(g=>
+      h("button",{class:"game",onclick:()=>openGame(g)},
+        h("span",{class:"th",style:g.thumb?`background-image:url("${g.thumb}")`:""}),
+        h("b",{lang:"ja"},g.jp),h("small",{},g.zh||"（中文名待補）"))))};
+  app.replaceChildren(h("h1",{},CFG.title),h("p",{class:"sub"},CFG.sub),q,box);draw();
+}
+async function openGame(g){
+  history.replaceState(null,"","#"+g.id);
+  const d=await fetch(`data/${g.id}.json`).then(r=>r.ok?r.json():{}).catch(()=>({}));
+  const body=h("div"),tabs=h("div",{class:"tabs",role:"tablist"});
+  const show=k=>{[...tabs.children].forEach(b=>b.setAttribute("aria-selected",b.dataset.k===k));body.replaceChildren(...R[k](d))};
+  TABS.forEach(([k,n])=>tabs.append(h("button",{class:"tab",role:"tab","data-k":k,onclick:()=>show(k)},n)));
+  app.replaceChildren(h("button",{class:"back",onclick:home},"‹ 返回"),h("h2",{lang:"ja"},g.jp),h("div",{class:"sub"},g.zh),tabs,body);
+  show("booklet");window.scrollTo(0,0);
+}
+fetch("games.json").then(r=>r.json()).then(j=>{G=j;const g=G.find(x=>"#"+x.id===location.hash);g?openGame(g):home()})
+ .catch(()=>app.replaceChildren(h("h1",{},"讀不到 games.json"),h("p",{},"請確認 games.json 在 index.html 同一層，並用 GitHub Pages（或本機伺服器）開啟。")));
+</script></body></html>
