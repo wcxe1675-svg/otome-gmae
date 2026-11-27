@@ -15,7 +15,7 @@ h1{margin:.2em 0;color:var(--deep);font-size:1.7rem;font-weight:400}
 h2{margin:.2em 0;color:var(--deep);font-weight:400}
 h3{margin:.2em 0;color:var(--deep);font-weight:400;font-size:1.1rem}
 .sub{margin:0 0 14px;opacity:.8}
-input[type=search]{width:100%;padding:9px 18px;border:2px solid var(--soft);border-radius:999px;background:rgba(255,255,255,.8);font:inherit;color:var(--ink)}
+input[type=search],input[type=password]{width:100%;padding:9px 18px;border:2px solid var(--soft);border-radius:999px;background:rgba(255,255,255,.8);font:inherit;color:var(--ink)}
 .game{position:relative;display:flex;flex-direction:column;justify-content:center;width:100%;min-height:66px;margin:10px 0;padding:8px 20px 8px 88px;border:0;border-radius:999px;background:rgba(255,230,238,.85);color:var(--ink);text-align:left;font:inherit;cursor:pointer;overflow:hidden}
 .game:hover,.game:focus-visible{background:#ffd3e1;outline:2px solid var(--pink)}
 .game .th{position:absolute;left:0;top:0;bottom:0;width:76px;background:center/cover;opacity:.45;-webkit-mask-image:linear-gradient(90deg,#000 55%,transparent);mask-image:linear-gradient(90deg,#000 55%,transparent)}
@@ -44,6 +44,9 @@ input[type=search]{width:100%;padding:9px 18px;border:2px solid var(--soft);bord
 .lyric .zh{display:block;opacity:.85}
 .ph{margin:12px 0;padding:10px 14px;border:2px dashed var(--pink);border-radius:14px;font-size:.9rem;opacity:.75}
 .hint{font-size:.85rem;opacity:.7}
+.lock{display:flex;flex-direction:column;gap:12px;text-align:center}
+.lock input{text-align:center}
+.lock .err{min-height:1.8em;margin:0;color:var(--deep)}
 button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--deep);outline-offset:2px}
 </style></head>
 <body><main id="app"></main>
@@ -52,7 +55,8 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 const CFG={
   bg:"https://i.imgur.com/DWmEPLQ.jpg",      // ✎ 背景大圖（Imgur 需為圖片直連網址）
   title:"乙女遊戲心得本",                    // ✎ 網站標題
-  sub:"（在這裡放一句副標）"                 // ✎ 副標
+  sub:"（在這裡放一句副標）",                // ✎ 副標
+  passHash:""                                // ✎ 密碼的 SHA-256 雜湊值；留空 = 不上鎖
 };
 // ==========================
 const app=document.getElementById("app");
@@ -151,6 +155,30 @@ async function openGame(g){
   app.replaceChildren(h("button",{class:"back",onclick:home},"‹ 返回"),h("h2",{lang:"ja"},g.jp),h("div",{class:"sub"},g.zh),tabs,body);
   show("booklet");window.scrollTo(0,0);
 }
+function start(){
 fetch("games.json").then(r=>r.json()).then(j=>{G=j;const g=G.find(x=>"#"+x.id===location.hash);g?openGame(g):home()})
+ .catch(()=>app.replaceChildren(h("h1",{},"讀不到 games.json"),h("p",{},"請確認 games.json 在 index.html 同一層，並用 GitHub Pages（或本機伺服器）開啟。")));
+}
+// ===== 密碼鎖 =====
+async function sha256(t){
+  const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));
+  return [...new Uint8Array(buf)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+function lock(){
+  const want=CFG.passHash.trim().toLowerCase();
+  if(!want)return start();
+  try{if(sessionStorage.getItem("unlock")===want)return start()}catch(e){}
+  const input=h("input",{type:"password",placeholder:"請輸入密碼","aria-label":"密碼",autocomplete:"current-password"});
+  const err=h("p",{class:"err",role:"alert"});
+  const form=h("form",{class:"lock",onsubmit:async e=>{
+    e.preventDefault();
+    if(await sha256(input.value)!==want){err.textContent="密碼不對，再試一次";input.select();return}
+    try{sessionStorage.setItem("unlock",want)}catch(e){}
+    start();
+  }},h("h1",{},CFG.title),input,h("button",{class:"tab",type:"submit"},"進入"),err);
+  app.replaceChildren(form);input.focus();
+}
+lock();
+</script></body></html>=j;const g=G.find(x=>"#"+x.id===location.hash);g?openGame(g):home()})
  .catch(()=>app.replaceChildren(h("h1",{},"讀不到 games.json"),h("p",{},"請確認 games.json 在 index.html 同一層，並用 GitHub Pages（或本機伺服器）開啟。")));
 </script></body></html>
